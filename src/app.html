@@ -2,11 +2,47 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<title> Let's Go Eat </title>
 		<meta name="viewport" content="width=device-width" />
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
-		<div style="display: contents">%sveltekit.body%</div>
+		<div class="card bg-blur" style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>
+
+<style>
+	:root {
+		--bg-image: url('https://images.unsplash.com/photo-1538370965046-79c0d6907d47?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80');
+	}
+	body {
+		background-color: #1D1E22;
+		font-family: sans-serif;
+	}
+	.card {
+		margin: auto;
+		padding: 1rem;
+		text-align: center;
+		color: white;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		background-color: gray;
+		border-radius: 10px;
+	}
+	.bg-blur {
+		overflow: hidden;
+		background-color: transparent;
+	}
+	.bg-blur::before {
+		content: '';
+		background-image: var(--bg-image);
+		background-size: cover;
+		height: 100%;
+		width: 100%;
+		position: absolute;
+		filter: blur(30px);
+		z-index: -1;
+	}
+</style>
