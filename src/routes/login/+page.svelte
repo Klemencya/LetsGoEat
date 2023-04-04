@@ -1,6 +1,7 @@
 <script lang="ts">
     import { form, field } from 'svelte-forms';
     import { required } from 'svelte-forms/validators';
+    import {base} from "$app/paths";
 
     const login = field('login', '', [required()]);
     const password = field('password', '', [required()]);
@@ -12,7 +13,7 @@
     <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
     <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
 
-    <button disabled={!$myForm.valid}>Log in</button>
+    <a href="{base}/account"><button disabled={!$myForm.valid}>Log in</button></a>
 </section>
 
 <style>
