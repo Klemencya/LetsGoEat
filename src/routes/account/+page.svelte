@@ -62,9 +62,20 @@
 </div>
 
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Shrikhand&family=Ubuntu:wght@400;700&display=swap');
+    h1 {
+        font-size: 64px;
+        font-family: "Shrikhand", cursive;
+        color: #9e4eca;
+    }
+
+    p {
+        font-size: 20px;
+        font-family: 'Ubuntu', sans-serif;
+    }
     .user-info {
         padding: 10px;
-        border-bottom: #2A7D53 4px solid;
+        border-bottom: #9e4eca 4px solid;
         text-align: left;
         display: inline-block;
         width: 100%;

@@ -13,7 +13,7 @@
     nav {
         padding-top: 1%;
         padding-bottom: 1%;
-        background-color: #2A7D53;
+        background-color: #85d2ac;
         text-decoration-color: white;
         text-decoration-width: none;
         position:absolute;
