@@ -3,7 +3,8 @@
 </script>
 
 <nav>
-    <a href="{base}/">Home</a>
+    <a href="{base}/" style="padding-left: 10%">Home</a>
+    <a href="{base}/account" style="float:right; padding-right: 10%; text-decoration-color: white; color: white">My account</a>
 </nav>
 
 <slot></slot>
@@ -12,20 +13,19 @@
     nav {
         padding-top: 1%;
         padding-bottom: 1%;
-        background-color: black;
+        background-color: #2A7D53;
         text-decoration-color: white;
-        text-decoration-width: auto;
+        text-decoration-width: none;
         position:absolute;
         top:0px;
         left:0px;
         width: 100%;
-        font-size: 30px;
+        font-size: 20px;
         text-align: left;
     }
 
     nav a {
         display: inline;
-        padding: 10%
     }
 
     nav a:visited {

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import { form, field } from 'svelte-forms';
     import { required } from 'svelte-forms/validators';
 

@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
     import { form, field } from 'svelte-forms';
     import { required } from 'svelte-forms/validators';
 
     const login = field('login', '', [required()]);
     const password = field('password', '', [required()]);
     const myForm = form(login, password);
+
 </script>
 
 <section class="form">

@@ -29,17 +29,15 @@
     }
 
     nav button {
-        margin-top: 20px;
-        padding: 50px;
-        padding-left: 30%;
-        padding-right: 30%;
-        width: 100%;
+        margin-top: 10px;
+        padding: 30px;
+        width: 50%;
     }
     button {
         background-color: white;
         color: black;
         border: 4px solid #9e4eca;
         border-radius: 4px;
-        font-size: 20px;
+        font-size: 14px;
     }
 </style>
