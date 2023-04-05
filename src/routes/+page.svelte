@@ -58,7 +58,7 @@
             #9e4eca,
             #7584b8,
             #8abcc3,
-            #7fd1dc
+            #85d2ac
         );
         box-shadow: 0 4px 15px 0 rgba(158, 184, 198, 0.75);
     }
