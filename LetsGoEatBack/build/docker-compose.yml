@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=1308249756
+      - POSTGRES_DB=myProjDB
+    ports:
+      - "15432:5432"
+    volumes:
+      - $PWD/postgres_data:/var/lib/postgresql/data
