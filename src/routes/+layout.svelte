@@ -4,9 +4,9 @@
 
 <nav>
     <a href="{base}/" style="padding-left: 30%">Home</a>
-    <a href="{base}/account" style="float:right; padding-right: 30%;"
-        >My account</a
-    >
+<!--    <a href="{base}/account" style="float:right; padding-right: 30%;"-->
+<!--        >My account</a-->
+<!--    >-->
 </nav>
 
 <slot />

@@ -1,35 +1,66 @@
 <script lang="ts">
     import type {User} from "./User";
-    import {field, form} from "svelte-forms";
-    import {required} from "svelte-forms/validators";
+    import type {Request} from "./Request";
 
     let visibility = false;
-    let recieverName = ''
+    let receiverUser = '';
+    let currentUser : User;
 
     let rita : User = {name: "Rita", surname: "Sidorskaya", login: "Klemencya", email:"email", password: "1111", id: 1, preferences: "Italian food"};
     let tanya : User = {name: "Tanya", surname: "Nechepurenko", login: "Tanechka", email:"email", password: "1111", id: 2, preferences: "Russian food"};
     let listOfUsers = [rita, tanya]
 
-    const place = field('place', '', [required()]);
-    const cuisine = field('cuisine', '', [required()]);
-    const comments = field('comments', '', [required()]);
-    const myForm = form(place, cuisine, comments);
+    let request1 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    let request2 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    let request3 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    let listOfRequests = [request1, request2, request3]
+
+    let place = '';
+    let cuisine = '';
+    let comments = '';
 
     function openMessageWindow(name: string){
         if (!visibility){
             visibility = !visibility;
-            recieverName = name
+            receiverUser = name
         } else {
-            recieverName = name;
+            receiverUser = name;
         }
     }
+
+    async function sendRequest(){
+        let API_URL = 'http://localhost:8080/api/send/request'
+
+        let response = await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                receiverUser,
+                place,
+                cuisine,
+                comments
+            })
+        });
+        const json = await response.json()
+        console.log(json)
+    }
+
+    async function getRequestsForUser(){
+        let API_URL = 'http://localhost:8080/api/get/request'
+        const params = new URLSearchParams({
+            login: currentUser.login
+        }).toString();
+
+        let response = await fetch(API_URL + params);
+        const requests = await response.json();
+
+        return requests
+    }
+
 </script>
 
 <div class="form">
     <div id="info-block">
         <h1>Let's Go Eat</h1>
-        <p>This app has been specially designed for people who can't find company to eat.</p>
-        <p>Just choose your company and eat</p>
     </div>
     <div class="meeting-form">
         <div class="element">
@@ -48,16 +79,32 @@
         </div>
         {#if visibility}
             <div class="element">
-                <p>Your message for {recieverName}</p>
+                <p>Your message for {receiverUser}</p>
                 <div class="message-form">
-                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value} /></p>
-                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value} /></p>
-                    <p><b>Comments:</b> <textarea bind:value={$comments.value}></textarea></p>
+                    <p><b>Suggest place:</b> <input type="text" bind:value={place} /></p>
+                    <p><b>Cuisine:</b> <input type="text" bind:value={cuisine} /></p>
+                    <p><b>Comments:</b> <textarea bind:value={comments}></textarea></p>
                 </div>
 
-                <button disabled={!$myForm.valid}>Send request</button>
+                <button on:click={()=>sendRequest()}>Send request</button>
             </div>
         {/if}
+    </div>
+    <div id="meeting-box">
+        <p>Requests</p>
+        <div>
+            {#each listOfRequests as request}
+                <div class="user-info">
+                    <div>
+                        <div>{request.fromUser}</div>
+                        <div>{request.message}</div>
+                    </div>
+                    <div style="float: right; padding-top: 20px">
+                        <button class="accept-button">Let's Go Eat</button>
+                    </div>
+                </div>
+            {/each}
+        </div>
     </div>
 </div>
 
@@ -67,6 +114,14 @@
         font-size: 64px;
         font-family: "Shrikhand", cursive;
         color: #9e4eca;
+    }
+
+    #meeting-box {
+        overflow: scroll;
+        height: 400px;
+        margin-top: 10%;
+        border: 2px solid #9e4eca;
+        padding: 50px
     }
 
     p {

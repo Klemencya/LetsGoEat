@@ -4,6 +4,10 @@
 
 <div class="form">
     <h1>Let's Go Eat</h1>
+    <div id="info-block">
+        <p>This app has been specially designed for people who can't find company to eat.</p>
+        <p>Just choose your company and eat</p>
+    </div>
     <nav>
         <a href="{base}/login"><button>Log in</button></a>
         <a href="{base}/registration"><button>Registration</button></a>
@@ -69,5 +73,8 @@
         -o-transition: all 0.4s ease-in-out;
         -webkit-transition: all 0.4s ease-in-out;
         transition: all 0.4s ease-in-out;
+    }
+    #info-block {
+        padding-bottom: 50px;
     }
 </style>
