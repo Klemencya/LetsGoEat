@@ -34,6 +34,7 @@
         let response = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
+                senderUser: currentUser.login,
                 receiverUser,
                 place,
                 cuisine,
