@@ -17,7 +17,7 @@
         let API_URL = 'http://localhost:8080/api/login'
 
         let response = await fetch(API_URL, {
-            method: 'GET',
+            method: 'POST',
             body: JSON.stringify({
                 login,
                 password

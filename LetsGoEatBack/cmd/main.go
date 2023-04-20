@@ -31,7 +31,7 @@ func main() {
 		return
 	}
 
-	r.Get("/api/login", login)
+	r.Post("/api/login", login)
 	r.Post("/api/registration", registration)
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
