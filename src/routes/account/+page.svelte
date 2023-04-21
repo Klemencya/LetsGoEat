@@ -32,6 +32,10 @@
 
     let name = getParameterByName('user');
 
+    function getCurrentUser(){
+    //     TODO: написать метод
+    }
+
     function openMessageWindow(name: string){
         if (!visibility){
             visibility = !visibility;
