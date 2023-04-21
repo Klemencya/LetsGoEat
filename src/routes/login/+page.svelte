@@ -2,9 +2,11 @@
     import { form, field } from 'svelte-forms';
     import { required } from 'svelte-forms/validators';
     import {base} from "$app/paths";
+    import Account from "../account/+page.svelte";
 
     let login = '';
     let password= '';
+    let currentUser = '';
     // const myForm = form(login, password);
 
     function formIsValid() {
@@ -15,16 +17,22 @@
     }
     async function logInUser() {
         let API_URL = 'http://localhost:8080/api/login'
-
-        let response = await fetch(API_URL, {
+        const fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
                 login,
                 password
             })
         });
-        const json = await response.json()
-        console.log(json)
+        fetchResponse
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+            });
+
+        currentUser = login;
+        // Account.name = login;
+        // console.log(Account.name)
     }
 
 </script>
@@ -34,7 +42,12 @@
     <p><b>Your password:</b> <input type="text" bind:value={password} /></p>
 
 <!--     TODO: разобраться с disabled-->
-    <a href="{base}/account"><button on:click={() => logInUser()}>Log in</button></a>
+    <a href="{base}/account?user={currentUser}"><button on:click={()=>logInUser()}>Log in</button></a>
+<!--    {#if logInUser()}-->
+<!--        <a href="{base}/account"><button>Log in</button></a>-->
+<!--    {:else}-->
+<!--        <button>Log in</button>-->
+<!--    {/if}-->
 </section>
 
 <style>
