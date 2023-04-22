@@ -60,6 +60,14 @@ type UserRegistration struct {
 	Password string `json:"password"`
 }
 
+type Invitation struct {
+	SenderUser   string `json:"sender_user"`
+	ReceiverUser string `json:"receiver_user"`
+	Place        string `json:"place"`
+	Cuisine      string `json:"cuisine"`
+	Invitation   string `json:"invitation"`
+}
+
 type UserLogin struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
@@ -67,6 +75,10 @@ type UserLogin struct {
 
 type Login struct {
 	Login string `json:"login"`
+}
+
+type ID struct {
+	ID string `json:"id"`
 }
 
 type UserColumn struct {
@@ -77,6 +89,15 @@ type UserColumn struct {
 	Login       string `db:"login"`
 	Password    string `db:"password"`
 	Preferences string `db:"preferences"`
+}
+
+type InvColumn struct {
+	ID         string `db:"req_id"`
+	Sender     string `db:"senderuser"`
+	Receiver   string `db:"receiveruser"`
+	Place      string `db:"place"`
+	Cuisine    string `db:"cuisine"`
+	Invitation string `db:"invitation"`
 }
 
 type User struct {

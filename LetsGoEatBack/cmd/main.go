@@ -42,15 +42,19 @@ func main() {
 		return
 	}
 
-	err = pkg.CreateFriendsTable()
+	err = pkg.CreateRequestsTable()
 	if err != nil {
-		fmt.Println("err in main while CreateFriendsTable:", err)
+		fmt.Println("err in main while CreateRequestsTable:", err)
 		return
 	}
 
 	r.Post("/api/login", login)
 	r.Post("/api/registration", registration)
 	r.Post("/api/get/user", getUser)
+	r.Post("/api/send/request", sendRequest)
+	r.Post("/api/get/request", getRequest)
+	r.Post("/api/delete/request", deleteRequest)
+	r.Post("/api/get/allusers", allUsers)
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("err in main while ListenAndServe:", err)
@@ -100,6 +104,40 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func sendRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in sendRequest...")
+	var inv pkg.Invitation
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&inv)
+	if err != nil {
+		fmt.Println("err in sendRequest while Decode:", err)
+		return
+	}
+	fmt.Println("\t", inv)
+
+	err = pkg.InsertInvitation(inv)
+	if err != nil {
+		fmt.Println("err in sendRequest while InsertInvitation:", err)
+
+		response := pkg.MakeResp("SendRequest", err.Error())
+		err = sendResp(&response, http.StatusConflict, w)
+		if err != nil {
+			fmt.Println("err in sendRequest while sendResp(Conflict)", err)
+		}
+
+		return
+	}
+
+	response := pkg.MakeResp("SendRequest", "OK")
+	err = sendResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in sendRequest while sendResp(OK)", err)
+		return
+	}
+}
+
 func registration(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("in registration...")
 	var user pkg.UserRegistration
@@ -142,7 +180,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 	err := decoder.Decode(&login)
 	if err != nil {
-		fmt.Println("err in user while Decode:", err)
+		fmt.Println("err in getUser while Decode:", err)
 		return
 	}
 	fmt.Println("\t", login)
@@ -157,7 +195,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 	response := pkg.MakeUserResp(string(b), "GetUser", "OK")
 	err = sendUserResp(&response, http.StatusOK, w)
 	if err != nil {
-		fmt.Println("err in user while sendResp(OK)", err)
+		fmt.Println("err in getUser while sendResp(OK)", err)
 		return
 	}
 }
@@ -200,17 +238,82 @@ func sendUserResp(response *pkg.UserResponse, status int, w http.ResponseWriter)
 	return nil
 }
 
-func example(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("out1\n", r)
-	//ctx := r.Context()
-	//article, ok := ctx.Value("article").(*Article)
-	//if !ok {
-	//	http.Error(w, http.StatusText(422), 422)
-	//	return
-	//}
-	_, err := w.Write([]byte(fmt.Sprintf("title:t")))
+func getRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in getRequest...")
+	var login pkg.Login
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&login)
 	if err != nil {
-		fmt.Println("err2", err)
+		fmt.Println("err in getRequest while Decode:", err)
+		return
+	}
+	fmt.Println("\t", login)
+
+	req, err := pkg.GetRequests(login.Login)
+	b, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	response := pkg.MakeUserResp(string(b), "GetRequest", "OK")
+	err = sendUserResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in getRequest while getRequest(OK)", err)
+		return
+	}
+}
+
+func allUsers(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in allUsers...")
+
+	req, err := pkg.GetAllUsers()
+	b, err := json.Marshal(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	response := pkg.MakeUserResp(string(b), "AllUsers", "OK")
+	err = sendUserResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in allUsers while getRequest(OK)", err)
+		return
+	}
+}
+
+func deleteRequest(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in deleteRequest...")
+	var id pkg.ID
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&id)
+	if err != nil {
+		fmt.Println("err in deleteRequest while Decode:", err)
+		return
+	}
+	fmt.Println("\t", id)
+
+	err = pkg.DeleteRequest(id.ID)
+	if err != nil {
+		fmt.Println("err in deleteRequest while DeleteRequest:", err)
+
+		response := pkg.MakeResp("DeleteRequest", err.Error())
+		err = sendResp(&response, http.StatusConflict, w)
+		if err != nil {
+			fmt.Println("err in deleteRequest while sendResp(Conflict)", err)
+		}
+
+		return
+	}
+
+	response := pkg.MakeResp("DeleteRequest", "OK")
+	err = sendResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in deleteRequest while sendResp(OK)", err)
 		return
 	}
 }

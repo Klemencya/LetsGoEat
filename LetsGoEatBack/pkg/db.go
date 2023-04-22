@@ -87,28 +87,52 @@ func CreateUserInfoTable() error {
 	return nil
 }
 
-func CreateFriendsTable() error {
-	fmt.Println("in CreateFriendsTable...")
+func CreateRequestsTable() error {
+	fmt.Println("in CreateRequestsTable...")
 	err := checkConnection()
 	if err != nil {
-		fmt.Println("err in CreateFriendsTable while checkConnection:", err)
+		fmt.Println("err in CreateRequestsTable while checkConnection:", err)
 		return err
 	}
 
 	var query = `
-	CREATE TABLE IF NOT EXISTS friends (
-		login VARCHAR ( 50 ) UNIQUE NOT NULL,
-		friendLogin VARCHAR ( 50 ) UNIQUE NOT NULL
+	CREATE TABLE IF NOT EXISTS requests (
+		req_id serial PRIMARY KEY,
+		senderUser VARCHAR ( 50 ) NOT NULL,
+		receiverUser VARCHAR ( 50 ) NOT NULL,
+		place VARCHAR ( 50 ) NOT NULL,
+		cuisine VARCHAR ( 50 ) NOT NULL,
+		invitation VARCHAR ( 50 ) NOT NULL
 	);`
 
 	_, err = DB.Exec(query)
 	if err != nil {
-		fmt.Println("err in CreateFriendsTable while Exec(query):", err)
+		fmt.Println("err in CreateRequestsTable while Exec(query):", err)
 		return err
 	}
 
-	fmt.Println("\tfriends table is ready")
+	fmt.Println("\trequests table is ready")
 	return nil
+}
+
+func GetRequests(login string) ([]InvColumn, error) {
+	fmt.Println("in GetRequest...")
+	var res []InvColumn
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in GetRequest while checkConnection:", err)
+		return res, err
+	}
+
+	query := `SELECT * FROM requests WHERE receiveruser = $1`
+	var invColumn []InvColumn
+	err = DB.Select(&invColumn, query, login)
+	if err != nil {
+		fmt.Println("err in GetRequest while Exec(query):", err)
+		return res, err
+	}
+
+	return invColumn, nil
 }
 
 func GetUser(login string) (UserColumn, error) {
@@ -177,5 +201,62 @@ func InsertUser(user UserRegistration) error {
 	//	user.Name, user.Surname, user.Email, user.Login, user.Password)
 
 	fmt.Println("\tuser " + user.Login + " has been inserted into user_info")
+	return nil
+}
+
+func InsertInvitation(inv Invitation) error {
+	fmt.Println("in InsertInvitation...")
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in InsertInvitation while checkConnection:", err)
+		return err
+	}
+
+	query := `INSERT INTO requests (senderuser, receiveruser, place, cuisine, invitation) VALUES ($1, $2, $3, $4, $5);`
+	_, err = DB.Exec(query, inv.SenderUser, inv.ReceiverUser, inv.Place, inv.Cuisine, inv.Invitation)
+	if err != nil {
+		fmt.Println("err in InsertInvitation while Exec(query):", err)
+		return err
+	}
+
+	fmt.Println("\tinvitation from " + inv.SenderUser + " has been inserted into requests")
+	return nil
+}
+
+func GetAllUsers() ([]UserColumn, error) {
+	fmt.Println("in GetAllUsers...")
+	var res []UserColumn
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in GetAllUsers while checkConnection:", err)
+		return res, err
+	}
+
+	query := `SELECT * FROM user_info`
+	var uc []UserColumn
+	err = DB.Select(&uc, query)
+	if err != nil {
+		fmt.Println("err in GetAllUsers while Exec(query):", err)
+		return res, err
+	}
+
+	return uc, nil
+}
+
+func DeleteRequest(id string) error {
+	fmt.Println("in GetRequest...")
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in DeleteRequest while checkConnection:", err)
+		return err
+	}
+
+	query := `DELETE FROM requests WHERE req_id = $1`
+	_, err = DB.Exec(query, id)
+	if err != nil {
+		fmt.Println("err in DeleteRequest while Exec(query):", err)
+		return err
+	}
+
 	return nil
 }
