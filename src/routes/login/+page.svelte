@@ -7,6 +7,8 @@
     let login = '';
     let password= '';
     let currentUser = '';
+    let loginStatus = false;
+    let nextLink = 'login'
     // const myForm = form(login, password);
 
     function formIsValid() {
@@ -27,12 +29,15 @@
         fetchResponse
             .then(response => response.json())
             .then(data => {
-                console.log(data)
+                loginStatus = data.msg == "OK";
+                if (loginStatus){
+                    currentUser = login;
+                    nextLink = "account?user=" + currentUser
+                } else {
+                    nextLink = "login"
+                    alert('Error: No such user!')
+                }
             });
-
-        currentUser = login;
-        // Account.name = login;
-        // console.log(Account.name)
     }
 
 </script>
@@ -41,13 +46,10 @@
     <p><b>Your login:</b> <input type="text" bind:value={login} /></p>
     <p><b>Your password:</b> <input type="text" bind:value={password} /></p>
 
-<!--     TODO: разобраться с disabled-->
-    <a href="{base}/account?user={currentUser}"><button on:click={()=>logInUser()}>Log in</button></a>
-<!--    {#if logInUser()}-->
-<!--        <a href="{base}/account"><button>Log in</button></a>-->
-<!--    {:else}-->
-<!--        <button>Log in</button>-->
-<!--    {/if}-->
+    <a href="{base}/{nextLink}">
+        <button on:click={()=>logInUser()}>Log in</button>
+    </a>
+
 </section>
 
 <style>

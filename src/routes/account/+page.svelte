@@ -1,10 +1,12 @@
 <script lang="ts">
     import type {User} from "./User";
     import type {Request} from "./Request";
+    import {onMount} from "svelte";
 
     let visibility = false;
     let receiverUser = '';
     let currentUser : User;
+    let login = getParameterByName('user');
 
     let rita : User = {name: "Rita", surname: "Sidorskaya", login: "Klemencya", email:"email", password: "1111", id: 1, preferences: "Italian food"};
     let tanya : User = {name: "Tanya", surname: "Nechepurenko", login: "Tanechka", email:"email", password: "1111", id: 2, preferences: "Russian food"};
@@ -30,11 +32,27 @@
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
 
-    let name = getParameterByName('user');
+    onMount(async () => {
+        let API_URL = 'http://localhost:8080/api/get/user'
 
-    function getCurrentUser(){
-    //     TODO: написать метод
-    }
+        const fetchResponse = fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                login: login
+            })
+        });
+        fetchResponse
+            .then(response => response.json())
+            .then(data => {
+                currentUser.login = data.login;
+                currentUser.id = data.id;
+                currentUser.name = data.name;
+                currentUser.surname = data.surname;
+                currentUser.email = data.email;
+                currentUser.password = data.password;
+                currentUser.preferences = data.preferences;
+            });
+    })
 
     function openMessageWindow(name: string){
         if (!visibility){
@@ -80,7 +98,7 @@
     <div id="info-block">
         <h1>Let's Go Eat</h1>
     </div>
-    <div><p>Hello {name}!</p></div>
+    <div><p>Hello {login}!</p></div>
     <div class="meeting-form">
         <div class="element">
             <p>List of users</p>
