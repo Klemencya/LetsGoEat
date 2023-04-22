@@ -19,6 +19,23 @@
     let cuisine = '';
     let comments = '';
 
+    // This method will separate current User nickname from url
+    function getParameterByName(name) {
+        let url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    let name = getParameterByName('user');
+
+    function getCurrentUser(){
+    //     TODO: написать метод
+    }
+
     function openMessageWindow(name: string){
         if (!visibility){
             visibility = !visibility;
@@ -63,6 +80,7 @@
     <div id="info-block">
         <h1>Let's Go Eat</h1>
     </div>
+    <div><p>Hello {name}!</p></div>
     <div class="meeting-form">
         <div class="element">
             <p>List of users</p>
