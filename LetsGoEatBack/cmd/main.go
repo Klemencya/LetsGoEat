@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	_ "github.com/lib/pq"
 	"net/http"
 )
@@ -19,15 +20,15 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-    		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
-    		AllowedOrigins: []string{"https://*", "http://*"},
-    		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-    		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-    		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-    		ExposedHeaders:   []string{"Link"},
-    		AllowCredentials: false,
-    		MaxAge:           300, // Maximum value not ignored by any of major browsers
-    	}))
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	err := pkg.ConnectDB()
 	if err != nil {
@@ -41,8 +42,15 @@ func main() {
 		return
 	}
 
+	err = pkg.CreateFriendsTable()
+	if err != nil {
+		fmt.Println("err in main while CreateFriendsTable:", err)
+		return
+	}
+
 	r.Post("/api/login", login)
 	r.Post("/api/registration", registration)
+	r.Post("/api/get/user", getUser)
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("err in main while ListenAndServe:", err)
@@ -126,7 +134,54 @@ func registration(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in user...")
+	var login pkg.Login
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&login)
+	if err != nil {
+		fmt.Println("err in user while Decode:", err)
+		return
+	}
+	fmt.Println("\t", login)
+
+	userColumn, err := pkg.GetUser(login.Login)
+	b, err := json.Marshal(userColumn)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	response := pkg.MakeUserResp(string(b), "GetUser", "OK")
+	err = sendUserResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in user while sendResp(OK)", err)
+		return
+	}
+}
+
 func sendResp(response *pkg.Response, status int, w http.ResponseWriter) error {
+	b, err := json.Marshal(response)
+	if err != nil {
+		fmt.Println("err in sendResp while Marshal", err)
+		return err
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		fmt.Println("err in sendResp while Write", err)
+		return err
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	return nil
+}
+
+func sendUserResp(response *pkg.UserResponse, status int, w http.ResponseWriter) error {
 	b, err := json.Marshal(response)
 	if err != nil {
 		fmt.Println("err in sendResp while Marshal", err)

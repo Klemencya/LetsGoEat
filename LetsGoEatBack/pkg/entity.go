@@ -26,7 +26,26 @@ func MakeResp(title string, msg string) Response {
 	return Response{Id: GetResponseID(), Title: title, Date: time.Now().Unix(), Msg: msg}
 }
 
+func MakeUserResp(users string, title string, msg string) UserResponse {
+	return UserResponse{Id: GetResponseID(), Title: title, Date: time.Now().Unix(), Msg: msg, Users: users}
+}
+
 type Response struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+	Date  int64  `json:"date"`
+	Msg   string `json:"msg"`
+}
+
+type UserResponse struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+	Date  int64  `json:"date"`
+	Msg   string `json:"msg"`
+	Users string `json:"users"`
+}
+
+type GetUserResponse struct {
 	Id    int    `json:"id"`
 	Title string `json:"title"`
 	Date  int64  `json:"date"`
@@ -46,13 +65,18 @@ type UserLogin struct {
 	Password string `json:"password"`
 }
 
+type Login struct {
+	Login string `json:"login"`
+}
+
 type UserColumn struct {
-	ID       string `db:"user_id"`
-	Name     string `db:"name"`
-	Surname  string `db:"surname"`
-	Email    string `db:"email"`
-	Login    string `db:"login"`
-	Password string `db:"password"`
+	ID          string `db:"user_id"`
+	Name        string `db:"name"`
+	Surname     string `db:"surname"`
+	Email       string `db:"email"`
+	Login       string `db:"login"`
+	Password    string `db:"password"`
+	Preferences string `db:"preferences"`
 }
 
 type User struct {

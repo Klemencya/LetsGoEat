@@ -73,7 +73,8 @@ func CreateUserInfoTable() error {
 		surname VARCHAR ( 50 ) NOT NULL,
 		email VARCHAR ( 50 ) NOT NULL,
 		login VARCHAR ( 50 ) UNIQUE NOT NULL,
-		password VARCHAR ( 50 ) NOT NULL
+		password VARCHAR ( 50 ) NOT NULL,
+		preferences TEXT
 	);`
 
 	_, err = DB.Exec(query)
@@ -84,6 +85,50 @@ func CreateUserInfoTable() error {
 
 	fmt.Println("\tuser_info table is ready")
 	return nil
+}
+
+func CreateFriendsTable() error {
+	fmt.Println("in CreateFriendsTable...")
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in CreateFriendsTable while checkConnection:", err)
+		return err
+	}
+
+	var query = `
+	CREATE TABLE IF NOT EXISTS friends (
+		login VARCHAR ( 50 ) UNIQUE NOT NULL,
+		friendLogin VARCHAR ( 50 ) UNIQUE NOT NULL
+	);`
+
+	_, err = DB.Exec(query)
+	if err != nil {
+		fmt.Println("err in CreateFriendsTable while Exec(query):", err)
+		return err
+	}
+
+	fmt.Println("\tfriends table is ready")
+	return nil
+}
+
+func GetUser(login string) (UserColumn, error) {
+	fmt.Println("in GetUser...")
+	var res UserColumn
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in GetUser while checkConnection:", err)
+		return res, err
+	}
+
+	query := `SELECT * FROM user_info WHERE login = $1`
+	var userColumn []UserColumn
+	err = DB.Select(&userColumn, query, login)
+	if err != nil {
+		fmt.Println("err in LogInCheck while Exec(query):", err)
+		return res, err
+	}
+
+	return userColumn[0], nil
 }
 
 func LogInCheck(user UserLogin) error {
@@ -121,7 +166,7 @@ func InsertUser(user UserRegistration) error {
 		return err
 	}
 
-	query := `INSERT INTO user_info (name, surname, email, login, password) VALUES ($1, $2, $3, $4, $5);`
+	query := `INSERT INTO user_info (name, surname, email, login, password, preferences) VALUES ($1, $2, $3, $4, $5, '');`
 	_, err = DB.Exec(query, user.Name, user.Surname, user.Email, user.Login, user.Password)
 	if err != nil {
 		fmt.Println("err in InsertUser while Exec(query):", err)
