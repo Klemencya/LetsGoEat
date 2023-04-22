@@ -6,11 +6,14 @@
     let email = '';
     let login = '';
     let password = '';
+    let currentUser = '';
+    let nextLink = 'registration';
+    let registerStatus = false;
 
     async function registerUser() {
         let API_URL = 'http://localhost:8080/api/registration'
 
-        let response = await fetch(API_URL, {
+        let fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
                 name,
@@ -20,8 +23,18 @@
                 password
             })
         });
-        const json = await response.json()
-        console.log(json)
+        fetchResponse
+            .then(response => response.json())
+            .then(data => {
+                registerStatus = data.msg == "OK";
+                if (registerStatus){
+                    currentUser = login;
+                    nextLink = "account?user=" + currentUser
+                } else {
+                    nextLink = "login"
+                    alert('Error: Such user already exists!')
+                }
+            });
     }
 </script>
 
@@ -32,7 +45,9 @@
     <p><b>Your login:</b> <input type="text" bind:value={login} /></p>
     <p><b>Your password:</b> <input type="text" bind:value={password} /></p>
 
-    <a href="{base}/account"><button on:click={() => registerUser()}>Create Account</button></a>
+    <a href="{base}/{nextLink}">
+        <button on:click={()=>registerUser()}>Log in</button>
+    </a>
 </section>
 
 <style>

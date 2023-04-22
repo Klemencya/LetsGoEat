@@ -2,7 +2,6 @@
     import { form, field } from 'svelte-forms';
     import { required } from 'svelte-forms/validators';
     import {base} from "$app/paths";
-    import Account from "../account/+page.svelte";
 
     let login = '';
     let password= '';
