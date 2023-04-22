@@ -1,24 +1,53 @@
 <script lang="ts">
-    import { form, field } from 'svelte-forms';
-    import { required } from 'svelte-forms/validators';
     import {base} from "$app/paths";
 
-    const name = field('name', '', [required()]);
-    const surname = field('surname', '', [required()]);
-    const email = field('email', '', [required()]);
-    const login = field('login', '', [required()]);
-    const password = field('password', '', [required()]);
-    const myForm = form(login, password);
+    let name = '';
+    let surname = '';
+    let email = '';
+    let login = '';
+    let password = '';
+    let currentUser = '';
+    let nextLink = 'registration';
+    let registerStatus = false;
+
+    async function registerUser() {
+        let API_URL = 'http://localhost:8080/api/registration'
+
+        let fetchResponse = fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                name,
+                surname,
+                email,
+                login,
+                password
+            })
+        });
+        fetchResponse
+            .then(response => response.json())
+            .then(data => {
+                registerStatus = data.msg == "OK";
+                if (registerStatus){
+                    currentUser = login;
+                    nextLink = "account?user=" + currentUser
+                } else {
+                    nextLink = "login"
+                    alert('Error: Such user already exists!')
+                }
+            });
+    }
 </script>
 
 <section class="form">
-    <p><b>Your name:</b> <input type="text" bind:value={$name.value} /></p>
-    <p><b>Your surname:</b> <input type="text" bind:value={$surname.value} /></p>
-    <p><b>Your email:</b> <input type="text" bind:value={$email.value} /></p>
-    <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
-    <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
+    <p><b>Your name:</b> <input type="text" bind:value={name} /></p>
+    <p><b>Your surname:</b> <input type="text" bind:value={surname} /></p>
+    <p><b>Your email:</b> <input type="text" bind:value={email} /></p>
+    <p><b>Your login:</b> <input type="text" bind:value={login} /></p>
+    <p><b>Your password:</b> <input type="text" bind:value={password} /></p>
 
-    <a href="{base}/account"><button disabled={!$myForm.valid}>Create Account</button></a>
+    <a href="{base}/{nextLink}">
+        <button on:click={()=>registerUser()}>Log in</button>
+    </a>
 </section>
 
 <style>
