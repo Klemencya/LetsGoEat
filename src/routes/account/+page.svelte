@@ -135,7 +135,8 @@
                         fromUser: request.Sender,
                         toUser: request.Receiver,
                         message: 'Place: ' + request.Place + '\n Cuisine: ' + request.Cuisine + '\n Comments: ' + request.Invitation,
-                        accept: false
+                        accept: false,
+                        id: request.ID
                     }))
 
                 }
@@ -156,7 +157,6 @@
 
         fetchResponse.then(response => response.json())
             .then(data => {
-                console.log(data)
                 if (data.msg == "OK"){
                     getRequestsForUser();
                 }
