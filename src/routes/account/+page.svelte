@@ -10,14 +10,17 @@
     let currentUser : User;
     let login = getParameterByName('user');
 
-    let rita : User = {name: "Rita", surname: "Sidorskaya", login: "Klemencya", email:"email", password: "1111", id: 1, preferences: "Italian food"};
-    let tanya : User = {name: "Tanya", surname: "Nechepurenko", login: "Tanechka", email:"email", password: "1111", id: 2, preferences: "Russian food"};
-    let listOfUsers = [rita, tanya]
+    let listOfUsers = [];
+    let listOfRequests = [];
 
-    let request1 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    let request2 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    let request3 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    let listOfRequests = [request1, request2, request3]
+    // let rita : User = {name: "Rita", surname: "Sidorskaya", login: "Klemencya", email:"email", password: "1111", id: 1, preferences: "Italian food"};
+    // let tanya : User = {name: "Tanya", surname: "Nechepurenko", login: "Tanechka", email:"email", password: "1111", id: 2, preferences: "Russian food"};
+    // let listOfUsers = [rita, tanya]
+    //
+    // let request1 : Request = {id: '1', fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    // let request2 : Request = {id: '2',fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    // let request3 : Request = {id: '3',fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
+    // let listOfRequests = [request1, request2, request3]
 
     let place = field('placw', '', [required()]);
     let cuisine = field('cuisine', '', [required()]);
@@ -141,6 +144,25 @@
             })
     }
 
+    async function deleteRequest(requestId: string){
+        let API_URL = 'http://localhost:8080/api/delete/request'
+
+        let fetchResponse = fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                id: requestId
+            })
+        });
+
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                console.log(data)
+                if (data.msg == "OK"){
+                    getRequestsForUser();
+                }
+            })
+    }
+
 </script>
 
 <div class="form">
@@ -187,6 +209,7 @@
                     </div>
                     <div style="float: right; padding-top: 20px">
                         <button class="accept-button">Let's Go Eat</button>
+                        <button on:click={() => deleteRequest(request.id)}>Delete</button>
                     </div>
                 </div>
             {/each}
