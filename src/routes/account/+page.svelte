@@ -13,16 +13,7 @@
     let listOfUsers = [];
     let listOfRequests = [];
 
-    // let rita : User = {name: "Rita", surname: "Sidorskaya", login: "Klemencya", email:"email", password: "1111", id: 1, preferences: "Italian food"};
-    // let tanya : User = {name: "Tanya", surname: "Nechepurenko", login: "Tanechka", email:"email", password: "1111", id: 2, preferences: "Russian food"};
-    // let listOfUsers = [rita, tanya]
-    //
-    // let request1 : Request = {id: '1', fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    // let request2 : Request = {id: '2',fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    // let request3 : Request = {id: '3',fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
-    // let listOfRequests = [request1, request2, request3]
-
-    let place = field('placw', '', [required()]);
+    let place = field('place', '', [required()]);
     let cuisine = field('cuisine', '', [required()]);
     let invitation = field('invitation', '', [required()]);
 
@@ -84,7 +75,6 @@
                         id: user.ID,
                         preferences: user.Preferences})}
                 })
-                console.log(listOfFriends)
                 listOfUsers = listOfFriends
             })
     }
@@ -113,7 +103,6 @@
             })
         });
         const json = await response.json()
-        console.log(json)
     }
 
     async function getRequestsForUser(){
@@ -129,18 +118,16 @@
         fetchResponse.then(response => response.json())
             .then(data => {
                 const requestsInfo = JSON.parse(data.users)
-                console.log(requestsInfo)
                 if (requestsInfo != null) {
                     requestsInfo.forEach(request => listOfFriendRequests.push({
                         fromUser: request.Sender,
                         toUser: request.Receiver,
                         message: 'Place: ' + request.Place + '\n Cuisine: ' + request.Cuisine + '\n Comments: ' + request.Invitation,
-                        accept: false,
+                        accept: request.Accepted,
                         id: request.ID
                     }))
 
                 }
-                console.log(listOfFriendRequests)
                 listOfRequests = listOfFriendRequests
             })
     }
@@ -157,6 +144,25 @@
 
         fetchResponse.then(response => response.json())
             .then(data => {
+                if (data.msg == "OK"){
+                    getRequestsForUser();
+                }
+            })
+    }
+
+    async function changeRequestAccept(requestId: string){
+        let API_URL = 'http://localhost:8080/api/change/request/status'
+
+        let fetchResponse = fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                id: requestId
+            })
+        });
+
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                console.log(data)
                 if (data.msg == "OK"){
                     getRequestsForUser();
                 }
@@ -184,6 +190,7 @@
                     </div>
                 </div>
             {/each}
+            <button on:click={()=>getAllUsers()}>Find more</button>
         </div>
         {#if visibility}
             <div class="element">
@@ -206,19 +213,26 @@
                     <div>
                         <div>{request.fromUser}</div>
                         <div>{request.message}</div>
+                        <div>{request.accept}</div>
                     </div>
-                    <div style="float: right; padding-top: 20px">
-                        <button class="accept-button">Let's Go Eat</button>
-                        <button on:click={() => deleteRequest(request.id)}>Delete</button>
+                    <div style="float: right; padding-top: 20px;">
+                        {#if !request.accept}
+                            <div><button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                        {:else}
+                            <div><button style="background-color: #85d2ac" on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                        {/if}
+                        <div><button on:click={() => deleteRequest(request.id)}>Delete</button></div>
                     </div>
                 </div>
             {/each}
         </div>
+        <button on:click={()=>getRequestsForUser()}>Refresh</button>
     </div>
 </div>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Shrikhand&family=Ubuntu:wght@400;700&display=swap');
+
     h1 {
         font-size: 64px;
         font-family: "Shrikhand", cursive;

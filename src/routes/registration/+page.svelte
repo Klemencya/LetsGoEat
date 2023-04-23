@@ -49,9 +49,13 @@
     <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
     <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
 
-    <a href="{base}/{nextLink}">
+    {#if registerStatus}
+        <a href="{base}/{nextLink}">
+            <button>Continue</button>
+        </a>
+    {:else }
         <button on:click={()=>registerUser()}>Register</button>
-    </a>
+    {/if}
 </section>
 
 <style>
