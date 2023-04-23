@@ -279,7 +279,7 @@ func ChangeAccepted(id string) error {
 	if len(ic) > 0 {
 		query = `UPDATE requests SET accepted = $1 WHERE req_id = $2`
 		acc := ic[0].Accepted
-		_, err = DB.Exec(query, acc, id)
+		_, err = DB.Exec(query, !acc, id)
 		if err != nil {
 			fmt.Println("err in ChangeAccepted while Exec(query):", err)
 			return err
