@@ -3,26 +3,22 @@
     import { required } from 'svelte-forms/validators';
     import {base} from "$app/paths";
 
-    let login = '';
-    let password= '';
+    const login = field('login', '', [required()]);
+    const password= field('password', '', [required()]);
+
+    let myForm = form(login, password);
     let currentUser = '';
     let loginStatus = false;
     let nextLink = 'login'
-    // const myForm = form(login, password);
 
-    function formIsValid() {
-        if (login.length > 0 && password.length > 8){
-            return ''
-        }
-        return 'disabled'
-    }
     async function logInUser() {
         let API_URL = 'http://localhost:8080/api/login'
+        myForm = form(login, password)
         const fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
-                login,
-                password
+                login: $login.value,
+                password: $password.value
             })
         });
         fetchResponse
@@ -30,7 +26,7 @@
             .then(data => {
                 loginStatus = data.msg == "OK";
                 if (loginStatus){
-                    currentUser = login;
+                    currentUser = $login.value;
                     nextLink = "account?user=" + currentUser
                 } else {
                     nextLink = "login"
@@ -42,8 +38,8 @@
 </script>
 
 <section class="form">
-    <p><b>Your login:</b> <input type="text" bind:value={login} /></p>
-    <p><b>Your password:</b> <input type="text" bind:value={password} /></p>
+    <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
+    <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
 
     <a href="{base}/{nextLink}">
         <button on:click={()=>logInUser()}>Log in</button>

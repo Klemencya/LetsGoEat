@@ -2,6 +2,8 @@
     import type {User} from "./User";
     import type {Request} from "./Request";
     import {onMount} from "svelte";
+    import {field} from "svelte-forms";
+    import {required} from "svelte-forms/validators";
 
     let visibility = false;
     let receiverUser = '';
@@ -17,9 +19,9 @@
     let request3 : Request = {fromUser: "Klemencya", toUser: "Tanechka", message: "Let's eat some pizza", accept: false};
     let listOfRequests = [request1, request2, request3]
 
-    let place = '';
-    let cuisine = '';
-    let comments = '';
+    let place = field('placw', '', [required()]);
+    let cuisine = field('cuisine', '', [required()]);
+    let invitation = field('invitation', '', [required()]);
 
     // This method will separate current User nickname from url
     function getParameterByName(name) {
@@ -44,15 +46,46 @@
         fetchResponse
             .then(response => response.json())
             .then(data => {
-                currentUser.login = data.login;
-                currentUser.id = data.id;
-                currentUser.name = data.name;
-                currentUser.surname = data.surname;
-                currentUser.email = data.email;
-                currentUser.password = data.password;
-                currentUser.preferences = data.preferences;
+                const userInfo = JSON.parse(data.users)
+                currentUser = {
+                    name: userInfo.Name,
+                    surname: userInfo.Surname,
+                    login: userInfo.Login,
+                    email: userInfo.Email,
+                    password: userInfo.Password,
+                    id: userInfo.ID,
+                    preferences: userInfo.Preferences}
+
             });
+
+        await getAllUsers();
+        await getRequestsForUser();
     })
+
+    async function getAllUsers(){
+        let API_URL = 'http://localhost:8080/api/get/allusers'
+        let listOfFriends = []
+
+        const fetchResponse = fetch(API_URL, {method: 'POST'});
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                const usersInfo = JSON.parse(data.users)
+                usersInfo.forEach(user => {
+                    if (currentUser.login != user.Login){
+                    listOfFriends.push({
+                        name: user.Name,
+                        surname: user.Surname,
+                        login: user.Login,
+                        email:user.Email,
+                        password: user.Password,
+                        id: user.ID,
+                        preferences: user.Preferences})}
+                })
+                console.log(listOfFriends)
+                listOfUsers = listOfFriends
+            })
+    }
+
 
     function openMessageWindow(name: string){
         if (!visibility){
@@ -69,11 +102,11 @@
         let response = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
-                senderUser: currentUser.login,
-                receiverUser,
-                place,
-                cuisine,
-                comments
+                sender_user: currentUser.login,
+                receiver_user: receiverUser,
+                place: $place.value,
+                cuisine: $cuisine.value,
+                invitation: $invitation.value
             })
         });
         const json = await response.json()
@@ -82,14 +115,30 @@
 
     async function getRequestsForUser(){
         let API_URL = 'http://localhost:8080/api/get/request'
-        const params = new URLSearchParams({
-            login: currentUser.login
-        }).toString();
 
-        let response = await fetch(API_URL + params);
-        const requests = await response.json();
+        let fetchResponse = fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                login: login
+            })
+        });
+        let listOfFriendRequests = []
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                const requestsInfo = JSON.parse(data.users)
+                console.log(requestsInfo)
+                if (requestsInfo != null) {
+                    requestsInfo.forEach(request => listOfFriendRequests.push({
+                        fromUser: request.Sender,
+                        toUser: request.Receiver,
+                        message: 'Place: ' + request.Place + '\n Cuisine: ' + request.Cuisine + '\n Comments: ' + request.Invitation,
+                        accept: false
+                    }))
 
-        return requests
+                }
+                console.log(listOfFriendRequests)
+                listOfRequests = listOfFriendRequests
+            })
     }
 
 </script>
@@ -118,9 +167,9 @@
             <div class="element">
                 <p>Your message for {receiverUser}</p>
                 <div class="message-form">
-                    <p><b>Suggest place:</b> <input type="text" bind:value={place} /></p>
-                    <p><b>Cuisine:</b> <input type="text" bind:value={cuisine} /></p>
-                    <p><b>Comments:</b> <textarea bind:value={comments}></textarea></p>
+                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value} /></p>
+                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value} /></p>
+                    <p><b>Comments:</b> <textarea bind:value={$invitation.value}></textarea></p>
                 </div>
 
                 <button on:click={()=>sendRequest()}>Send request</button>
