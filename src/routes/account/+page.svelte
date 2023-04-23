@@ -4,6 +4,7 @@
     import {onMount} from "svelte";
     import {field} from "svelte-forms";
     import {required} from "svelte-forms/validators";
+    import { page } from '$app/stores';
 
     let visibility = false;
     let receiverUser = '';
@@ -19,7 +20,8 @@
 
     // This method will separate current User nickname from url
     function getParameterByName(name) {
-        let url = window.location.href;
+        let url = $page.url;
+        // console.log("url " + url)
         name = name.replace(/[\[\]]/g, '\\$&');
         let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
             results = regex.exec(url);
