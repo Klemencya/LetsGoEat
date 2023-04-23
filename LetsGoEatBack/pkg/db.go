@@ -102,7 +102,8 @@ func CreateRequestsTable() error {
 		receiverUser VARCHAR ( 50 ) NOT NULL,
 		place VARCHAR ( 50 ) NOT NULL,
 		cuisine VARCHAR ( 50 ) NOT NULL,
-		invitation VARCHAR ( 50 ) NOT NULL
+		invitation VARCHAR ( 50 ) NOT NULL,
+		accepted BOOLEAN NOT NULL
 	);`
 
 	_, err = DB.Exec(query)
@@ -197,9 +198,6 @@ func InsertUser(user UserRegistration) error {
 		return err
 	}
 
-	//schema := fmt.Sprintf(`INSERT INTO user_info (name, surname, email, login, password) VALUES ($1, $2, $3, $4, $5);`,
-	//	user.Name, user.Surname, user.Email, user.Login, user.Password)
-
 	fmt.Println("\tuser " + user.Login + " has been inserted into user_info")
 	return nil
 }
@@ -212,8 +210,8 @@ func InsertInvitation(inv Invitation) error {
 		return err
 	}
 
-	query := `INSERT INTO requests (senderuser, receiveruser, place, cuisine, invitation) VALUES ($1, $2, $3, $4, $5);`
-	_, err = DB.Exec(query, inv.SenderUser, inv.ReceiverUser, inv.Place, inv.Cuisine, inv.Invitation)
+	query := `INSERT INTO requests (senderuser, receiveruser, place, cuisine, invitation, accepted) VALUES ($1, $2, $3, $4, $5, $6);`
+	_, err = DB.Exec(query, inv.SenderUser, inv.ReceiverUser, inv.Place, inv.Cuisine, inv.Invitation, false)
 	if err != nil {
 		fmt.Println("err in InsertInvitation while Exec(query):", err)
 		return err
@@ -251,6 +249,7 @@ func DeleteRequest(id string) error {
 		return err
 	}
 
+	fmt.Println(id, len(id))
 	query := `DELETE FROM requests WHERE req_id = $1`
 	_, err = DB.Exec(query, id)
 	if err != nil {
@@ -258,5 +257,33 @@ func DeleteRequest(id string) error {
 		return err
 	}
 
+	return nil
+}
+
+func ChangeAccepted(id string) error {
+	fmt.Println("in ChangeAccepted...")
+	err := checkConnection()
+	if err != nil {
+		fmt.Println("err in ChangeAccepted while checkConnection:", err)
+		return err
+	}
+
+	query := `SELECT * FROM requests WHERE req_id = $1`
+	var ic []InvColumn
+	err = DB.Select(&ic, query, id)
+	if err != nil {
+		fmt.Println("err in ChangeAccepted while Exec(query):", err)
+		return err
+	}
+
+	if len(ic) > 0 {
+		query = `UPDATE requests SET accepted = $1 WHERE req_id = $2`
+		acc := ic[0].Accepted
+		_, err = DB.Exec(query, acc, id)
+		if err != nil {
+			fmt.Println("err in ChangeAccepted while Exec(query):", err)
+			return err
+		}
+	}
 	return nil
 }

@@ -66,6 +66,7 @@ type Invitation struct {
 	Place        string `json:"place"`
 	Cuisine      string `json:"cuisine"`
 	Invitation   string `json:"invitation"`
+	Accepted     bool   `json:"accepted"`
 }
 
 type UserLogin struct {
@@ -98,6 +99,7 @@ type InvColumn struct {
 	Place      string `db:"place"`
 	Cuisine    string `db:"cuisine"`
 	Invitation string `db:"invitation"`
+	Accepted   bool   `db:"accepted"`
 }
 
 type User struct {

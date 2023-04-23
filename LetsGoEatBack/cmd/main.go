@@ -55,6 +55,7 @@ func main() {
 	r.Post("/api/get/request", getRequest)
 	r.Post("/api/delete/request", deleteRequest)
 	r.Post("/api/get/allusers", allUsers)
+	r.Post("/api/change/request/status", changeAccepted)
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println("err in main while ListenAndServe:", err)
@@ -314,6 +315,40 @@ func deleteRequest(w http.ResponseWriter, r *http.Request) {
 	err = sendResp(&response, http.StatusOK, w)
 	if err != nil {
 		fmt.Println("err in deleteRequest while sendResp(OK)", err)
+		return
+	}
+}
+
+func changeAccepted(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("in changeAccepted...")
+	var id pkg.ID
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&id)
+	if err != nil {
+		fmt.Println("err in changeAccepted while Decode:", err)
+		return
+	}
+	fmt.Println("\t", id)
+
+	err = pkg.ChangeAccepted(id.ID)
+	if err != nil {
+		fmt.Println("err in changeAccepted while DeleteRequest:", err)
+
+		response := pkg.MakeResp("ChangeAccepted", err.Error())
+		err = sendResp(&response, http.StatusConflict, w)
+		if err != nil {
+			fmt.Println("err in changeAccepted while sendResp(Conflict)", err)
+		}
+
+		return
+	}
+
+	response := pkg.MakeResp("ChangeAccepted", "OK")
+	err = sendResp(&response, http.StatusOK, w)
+	if err != nil {
+		fmt.Println("err in changeAccepted while sendResp(OK)", err)
 		return
 	}
 }
