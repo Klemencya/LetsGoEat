@@ -4,11 +4,11 @@
     import {onMount} from "svelte";
     import {field} from "svelte-forms";
     import {required} from "svelte-forms/validators";
-    import { page } from '$app/stores';
+    import {page} from '$app/stores';
 
     let visibility = false;
     let receiverUser = '';
-    let currentUser : User;
+    let currentUser: User;
     let login = getParameterByName('user');
 
     let listOfUsers = [];
@@ -50,7 +50,8 @@
                     email: userInfo.Email,
                     password: userInfo.Password,
                     id: userInfo.ID,
-                    preferences: userInfo.Preferences}
+                    preferences: userInfo.Preferences
+                }
 
             });
 
@@ -58,7 +59,7 @@
         await getRequestsForUser();
     })
 
-    async function getAllUsers(){
+    async function getAllUsers() {
         let API_URL = 'http://localhost:8080/api/get/allusers'
         let listOfFriends = []
 
@@ -67,23 +68,25 @@
             .then(data => {
                 const usersInfo = JSON.parse(data.users)
                 usersInfo.forEach(user => {
-                    if (currentUser.login != user.Login){
-                    listOfFriends.push({
-                        name: user.Name,
-                        surname: user.Surname,
-                        login: user.Login,
-                        email:user.Email,
-                        password: user.Password,
-                        id: user.ID,
-                        preferences: user.Preferences})}
+                    if (currentUser.login != user.Login) {
+                        listOfFriends.push({
+                            name: user.Name,
+                            surname: user.Surname,
+                            login: user.Login,
+                            email: user.Email,
+                            password: user.Password,
+                            id: user.ID,
+                            preferences: user.Preferences
+                        })
+                    }
                 })
                 listOfUsers = listOfFriends
             })
     }
 
 
-    function openMessageWindow(name: string){
-        if (!visibility){
+    function openMessageWindow(name: string) {
+        if (!visibility) {
             visibility = !visibility;
             receiverUser = name
         } else {
@@ -91,7 +94,7 @@
         }
     }
 
-    async function sendRequest(){
+    async function sendRequest() {
         let API_URL = 'http://localhost:8080/api/send/request'
 
         let response = await fetch(API_URL, {
@@ -107,7 +110,7 @@
         const json = await response.json()
     }
 
-    async function getRequestsForUser(){
+    async function getRequestsForUser() {
         let API_URL = 'http://localhost:8080/api/get/request'
 
         let fetchResponse = fetch(API_URL, {
@@ -134,7 +137,7 @@
             })
     }
 
-    async function deleteRequest(requestId: string){
+    async function deleteRequest(requestId: string) {
         let API_URL = 'http://localhost:8080/api/delete/request'
 
         let fetchResponse = fetch(API_URL, {
@@ -146,13 +149,13 @@
 
         fetchResponse.then(response => response.json())
             .then(data => {
-                if (data.msg == "OK"){
+                if (data.msg == "OK") {
                     getRequestsForUser();
                 }
             })
     }
 
-    async function changeRequestAccept(requestId: string){
+    async function changeRequestAccept(requestId: string) {
         let API_URL = 'http://localhost:8080/api/change/request/status'
 
         let fetchResponse = fetch(API_URL, {
@@ -165,13 +168,16 @@
         fetchResponse.then(response => response.json())
             .then(data => {
                 console.log(data)
-                if (data.msg == "OK"){
+                if (data.msg == "OK") {
                     getRequestsForUser();
                 }
             })
     }
 
 </script>
+
+<meta property="og:title" content="${currentUser.name}'s user page"/>
+<meta property="og:description" content="Text and invite ${currentUser.name} ${currentUser.surname} to eat together!">
 
 <div class="form">
     <div id="info-block">
@@ -198,8 +204,8 @@
             <div class="element">
                 <p>Your message for {receiverUser}</p>
                 <div class="message-form">
-                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value} /></p>
-                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value} /></p>
+                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value}/></p>
+                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value}/></p>
                     <p><b>Comments:</b> <textarea bind:value={$invitation.value}></textarea></p>
                 </div>
 
@@ -219,11 +225,19 @@
                     </div>
                     <div style="float: right; padding-top: 20px;">
                         {#if !request.accept}
-                            <div><button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                            <div>
+                                <button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button>
+                            </div>
                         {:else}
-                            <div><button style="background-color: #85d2ac" on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                            <div>
+                                <button style="background-color: #85d2ac"
+                                        on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat
+                                </button>
+                            </div>
                         {/if}
-                        <div><button on:click={() => deleteRequest(request.id)}>Delete</button></div>
+                        <div>
+                            <button on:click={() => deleteRequest(request.id)}>Delete</button>
+                        </div>
                     </div>
                 </div>
             {/each}
@@ -253,6 +267,7 @@
         font-size: 20px;
         font-family: 'Ubuntu', sans-serif;
     }
+
     .user-info {
         padding: 10px;
         border-bottom: #9e4eca 4px solid;
@@ -293,9 +308,11 @@
     #info-block {
         padding-bottom: 50px;
     }
+
     .meeting-form {
         display: flex;
     }
+
     .element {
         text-align: center;
         margin: 50px 100px;
