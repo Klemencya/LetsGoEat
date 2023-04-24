@@ -1,6 +1,6 @@
 import cloudflare from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/kit/vite';
-const dev = process.argv.includes('dev');
+// const dev = process.argv.includes('dev');
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -14,7 +14,7 @@ const config = {
 		// See https://kit.svelte.dev/docs/adapters for more information about adapters.
 		adapter: cloudflare(),
 		paths: {
-			base: dev ? '' : '/LetsGoEat',
+			base: '',
 		},
 	}
 };
