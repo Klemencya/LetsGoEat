@@ -11,8 +11,8 @@
     let currentUser: User;
     let login = getParameterByName('user');
 
-    let listOfUsers = [];
-    let listOfRequests = [];
+    let listOfUsers : [User] = [];
+    let listOfRequests : [Request] = [];
 
     let place = field('place', '', [required()]);
     let cuisine = field('cuisine', '', [required()]);
@@ -61,7 +61,7 @@
 
     async function getAllUsers() {
         let API_URL = 'http://localhost:8080/api/get/allusers'
-        let listOfFriends = []
+        let listOfFriends : [User] = []
 
         const fetchResponse = fetch(API_URL, {method: 'POST'});
         fetchResponse.then(response => response.json())
@@ -107,7 +107,7 @@
                 invitation: $invitation.value
             })
         });
-        const json = await response.json()
+        await response.json()
     }
 
     async function getRequestsForUser() {
@@ -119,7 +119,7 @@
                 login: login
             })
         });
-        let listOfFriendRequests = []
+        let listOfFriendRequests : [Request] = []
         fetchResponse.then(response => response.json())
             .then(data => {
                 const requestsInfo = JSON.parse(data.users)
