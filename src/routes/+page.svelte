@@ -2,6 +2,13 @@
     import {base} from "$app/paths";
 </script>
 
+<head>
+    <meta property="og:title" content="Let's Go Eat"/>
+    <meta property="og:description"
+          content="This app has been specially designed for people who can't find company to eat."/>
+    <title>Let's Go Eat</title>
+</head>
+
 <div class="form">
     <h1>Let's Go Eat</h1>
     <div id="info-block">
