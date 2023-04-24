@@ -2,6 +2,12 @@
     import {base} from "$app/paths";
 </script>
 
+<head>
+    <title>Login</title>
+    <meta property="og:title" content="Log in"/>
+    <meta property="og:description" content="Log in and find company to eat."/>
+</head>
+
 <nav>
     <a href="{base}/" style="padding-left: 30%">Home</a>
     <!--    <a href="{base}/account" style="float:right; padding-right: 30%;"-->

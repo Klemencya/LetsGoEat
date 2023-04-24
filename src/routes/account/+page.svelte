@@ -2,7 +2,7 @@
     import type {User} from "./User";
     import type {Request} from "./Request";
     import {onMount} from "svelte";
-    import {field} from "svelte-forms";
+    import {field, form} from "svelte-forms";
     import {required} from "svelte-forms/validators";
     import {page} from '$app/stores';
 
@@ -16,7 +16,8 @@
 
     let place = field('place', '', [required()]);
     let cuisine = field('cuisine', '', [required()]);
-    let invitation = field('invitation', '', [required()]);
+    let invitation = field('invitation', '', []);
+    let myForm = form(place, cuisine, invitation);
 
     // This method will separate current User nickname from url
     function getParameterByName(name) {
@@ -24,7 +25,7 @@
         // console.log("url " + url)
         name = name.replace(/[\[\]]/g, '\\$&');
         let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-            results = regex.exec(url);
+            results = regex.exec(url.toString());
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
@@ -176,8 +177,11 @@
 
 </script>
 
-<meta property="og:title" content="${login}'s user page"/>
-<meta property="og:description" content="Text and invite ${login} to eat together!"/>
+<head>
+    <title>${login}'s user page</title>
+    <meta property="og:title" content="${login}'s user page"/>
+    <meta property="og:description" content="Text and invite ${login} to eat together!"/>
+</head>
 
 <div class="form">
     <div id="info-block">
@@ -208,8 +212,9 @@
                     <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value}/></p>
                     <p><b>Comments:</b> <textarea bind:value={$invitation.value}></textarea></p>
                 </div>
-
-                <button on:click={()=>sendRequest()}>Send request</button>
+                {#if $myForm.valid}
+                    <button on:click={()=>sendRequest()}>Send request</button>
+                {/if}
             </div>
         {/if}
     </div>
