@@ -31,7 +31,7 @@
             .then(response => response.json())
             .then(data => {
                 registerStatus = data.msg == "OK";
-                if (registerStatus){
+                if (registerStatus) {
                     currentUser = $login.value;
                     nextLink = "account?user=" + currentUser
                 } else {
@@ -42,12 +42,19 @@
     }
 </script>
 
+<head>
+    <title>Registration</title>
+    <meta name="title" content="Registration"/>
+    <meta name="description"
+          content="Register and find company to eat."/>
+</head>
+
 <section class="form">
-    <p><b>Your name:</b> <input type="text" bind:value={$name.value} /></p>
-    <p><b>Your surname:</b> <input type="text" bind:value={$surname.value} /></p>
-    <p><b>Your email:</b> <input type="text" bind:value={$email.value} /></p>
-    <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
-    <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
+    <p><b>Your name:</b> <input type="text" bind:value={$name.value}/></p>
+    <p><b>Your surname:</b> <input type="text" bind:value={$surname.value}/></p>
+    <p><b>Your email:</b> <input type="text" bind:value={$email.value}/></p>
+    <p><b>Your login:</b> <input type="text" bind:value={$login.value}/></p>
+    <p><b>Your password:</b> <input type="text" bind:value={$password.value}/></p>
 
     {#if registerStatus}
         <a href="{base}/{nextLink}">
@@ -83,6 +90,7 @@
         padding: 10px;
         width: 100%;
     }
+
     button {
         margin-top: 10px;
         width: 50%;

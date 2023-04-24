@@ -1,10 +1,10 @@
 <script lang="ts">
-    import { form, field } from 'svelte-forms';
-    import { required } from 'svelte-forms/validators';
+    import {form, field} from 'svelte-forms';
+    import {required} from 'svelte-forms/validators';
     import {base} from "$app/paths";
 
     const login = field('login', '', [required()]);
-    const password= field('password', '', [required()]);
+    const password = field('password', '', [required()]);
 
     let myForm = form(login, password);
     let currentUser = '';
@@ -25,7 +25,7 @@
             .then(response => response.json())
             .then(data => {
                 loginStatus = data.msg == "OK";
-                if (loginStatus){
+                if (loginStatus) {
                     currentUser = $login.value;
                     nextLink = "account?user=" + currentUser
                 } else {
@@ -37,9 +37,16 @@
 
 </script>
 
+<head>
+    <title>Login</title>
+    <meta property="og:title" content="Log in"/>
+    <meta property="og:description"
+          content="Log in and find company to eat."/>
+</head>
+
 <section class="form">
-    <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
-    <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
+    <p><b>Your login:</b> <input type="text" bind:value={$login.value}/></p>
+    <p><b>Your password:</b> <input type="text" bind:value={$password.value}/></p>
 
 
     {#if loginStatus}
@@ -77,6 +84,7 @@
         padding: 10px;
         width: 100%;
     }
+
     button {
         margin-top: 10px;
         width: 50%;

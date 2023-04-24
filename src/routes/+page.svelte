@@ -3,10 +3,10 @@
 </script>
 
 <head>
+    <title>Let's Go Eat</title>
     <meta name="title" content="Let's Go Eat"/>
     <meta name="description"
           content="This app has been specially designed for people who can't find company to eat."/>
-    <title>Let's Go Eat</title>
 </head>
 
 <div class="form">
