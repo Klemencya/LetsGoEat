@@ -176,8 +176,8 @@
 
 </script>
 
-<meta property="og:title" content="${currentUser.name}'s user page"/>
-<meta property="og:description" content="Text and invite ${currentUser.name} ${currentUser.surname} to eat together!">
+<meta property="og:title" content="${login}'s user page"/>
+<meta property="og:description" content="Text and invite ${login} to eat together!">
 
 <div class="form">
     <div id="info-block">
