@@ -1,28 +1,28 @@
 <script lang="ts">
     import {base} from "$app/paths";
     import {field, form} from "svelte-forms";
-    import {required} from "svelte-forms/validators";
+    import {email, min, required} from "svelte-forms/validators";
 
     let name = field('name', '', [required()]);
     let surname = field('surname', '', [required()]);
-    let email = field('email', '', [required()]);
+    let user_email = field('email', '', [required(), email()]);
     let login = field('login', '', [required()]);
-    let password = field('password', '', [required()]);
-    let myForm = form(name, surname, email, login, password);
+    let password = field('password', '', [required(), min(8)]);
+    let myForm = form(name, surname, user_email, login, password);
     let currentUser = '';
     let nextLink = 'registration';
     let registerStatus = false;
 
     async function registerUser() {
         let API_URL = 'http://localhost:8080/api/registration'
-        myForm = form(name, surname, email, login, password);
+        myForm = form(name, surname, user_email, login, password);
 
         let fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
                 name: $name.value,
                 surname: $surname.value,
-                email: $email.value,
+                email: $user_email.value,
                 login: $login.value,
                 password: $password.value
             })
@@ -31,30 +31,39 @@
             .then(response => response.json())
             .then(data => {
                 registerStatus = data.msg == "OK";
-                if (registerStatus){
+                if (registerStatus) {
                     currentUser = $login.value;
                     nextLink = "account?user=" + currentUser
                 } else {
                     nextLink = "registration"
-                    alert('Error: User with such login already exists!')
+                    alert(data.msg)
                 }
             });
     }
 </script>
 
-<section class="form">
-    <p><b>Your name:</b> <input type="text" bind:value={$name.value} /></p>
-    <p><b>Your surname:</b> <input type="text" bind:value={$surname.value} /></p>
-    <p><b>Your email:</b> <input type="text" bind:value={$email.value} /></p>
-    <p><b>Your login:</b> <input type="text" bind:value={$login.value} /></p>
-    <p><b>Your password:</b> <input type="text" bind:value={$password.value} /></p>
+<head>
+    <title>Registration</title>
+    <meta name="title" content="Registration"/>
+    <meta name="description"
+          content="Register and find company to eat."/>
+</head>
 
-    {#if registerStatus}
-        <a href="{base}/{nextLink}">
-            <button>Continue</button>
-        </a>
-    {:else }
-        <button on:click={()=>registerUser()}>Register</button>
+<section class="form">
+    <p><b>Your name:</b> <input type="text" bind:value={$name.value}/></p>
+    <p><b>Your surname:</b> <input type="text" bind:value={$surname.value}/></p>
+    <p><b>Your email:</b> <input type="text" bind:value={$user_email.value}/></p>
+    <p><b>Your login:</b> <input type="text" bind:value={$login.value}/></p>
+    <p><b>Your password:</b> <input type="text" bind:value={$password.value}/></p>
+
+    {#if $myForm.valid}
+        {#if registerStatus}
+            <a href="{base}/{nextLink}">
+                <button>Continue</button>
+            </a>
+        {:else }
+            <button on:click={()=>registerUser()}>Register</button>
+        {/if}
     {/if}
 </section>
 
@@ -83,6 +92,7 @@
         padding: 10px;
         width: 100%;
     }
+
     button {
         margin-top: 10px;
         width: 50%;

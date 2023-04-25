@@ -2,21 +2,23 @@
     import type {User} from "./User";
     import type {Request} from "./Request";
     import {onMount} from "svelte";
-    import {field} from "svelte-forms";
+    import {field, form} from "svelte-forms";
     import {required} from "svelte-forms/validators";
-    import { page } from '$app/stores';
+    import {page} from '$app/stores';
+    import type {UserInfoResponseMessage} from "./UserInfoResponseMessage";
 
     let visibility = false;
     let receiverUser = '';
-    let currentUser : User;
+    let currentUser: User;
     let login = getParameterByName('user');
 
-    let listOfUsers = [];
-    let listOfRequests = [];
+    let listOfUsers : [User] = [];
+    let listOfRequests : [Request] = [];
 
     let place = field('place', '', [required()]);
     let cuisine = field('cuisine', '', [required()]);
-    let invitation = field('invitation', '', [required()]);
+    let invitation = field('invitation', '', []);
+    let myForm = form(place, cuisine, invitation);
 
     // This method will separate current User nickname from url
     function getParameterByName(name) {
@@ -24,7 +26,7 @@
         // console.log("url " + url)
         name = name.replace(/[\[\]]/g, '\\$&');
         let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-            results = regex.exec(url);
+            results = regex.exec(url.toString());
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
@@ -50,40 +52,41 @@
                     email: userInfo.Email,
                     password: userInfo.Password,
                     id: userInfo.ID,
-                    preferences: userInfo.Preferences}
-
+                    preferences: userInfo.Preferences
+                }
+                getAllUsers();
+                getRequestsForUser();
             });
-
-        await getAllUsers();
-        await getRequestsForUser();
     })
 
-    async function getAllUsers(){
+    async function getAllUsers() {
         let API_URL = 'http://localhost:8080/api/get/allusers'
-        let listOfFriends = []
+        let listOfFriends : [User] = []
 
         const fetchResponse = fetch(API_URL, {method: 'POST'});
         fetchResponse.then(response => response.json())
             .then(data => {
-                const usersInfo = JSON.parse(data.users)
+                const usersInfo : [UserInfoResponseMessage] = JSON.parse(data.users)
                 usersInfo.forEach(user => {
-                    if (currentUser.login != user.Login){
-                    listOfFriends.push({
-                        name: user.Name,
-                        surname: user.Surname,
-                        login: user.Login,
-                        email:user.Email,
-                        password: user.Password,
-                        id: user.ID,
-                        preferences: user.Preferences})}
+                    if (currentUser.login != user.Login) {
+                        listOfFriends.push({
+                            name: user.Name,
+                            surname: user.Surname,
+                            login: user.Login,
+                            email: user.Email,
+                            password: user.Password,
+                            id: user.ID,
+                            preferences: user.Preferences
+                        })
+                    }
                 })
                 listOfUsers = listOfFriends
             })
     }
 
 
-    function openMessageWindow(name: string){
-        if (!visibility){
+    function openMessageWindow(name: string) {
+        if (!visibility) {
             visibility = !visibility;
             receiverUser = name
         } else {
@@ -91,23 +94,32 @@
         }
     }
 
-    async function sendRequest(){
+    async function sendRequest() {
         let API_URL = 'http://localhost:8080/api/send/request'
 
-        let response = await fetch(API_URL, {
+        let fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
-                sender_user: currentUser.login,
+                sender_user: login,
                 receiver_user: receiverUser,
                 place: $place.value,
                 cuisine: $cuisine.value,
                 invitation: $invitation.value
             })
         });
-        const json = await response.json()
+        visibility = false;
+        visibility = visibility;
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                if (data.msg == "OK"){
+                    alert("You successfully send request to " + receiverUser)
+                } else {
+                    alert(data.msg)
+                }
+            })
     }
 
-    async function getRequestsForUser(){
+    async function getRequestsForUser() {
         let API_URL = 'http://localhost:8080/api/get/request'
 
         let fetchResponse = fetch(API_URL, {
@@ -116,7 +128,7 @@
                 login: login
             })
         });
-        let listOfFriendRequests = []
+        let listOfFriendRequests : [Request] = []
         fetchResponse.then(response => response.json())
             .then(data => {
                 const requestsInfo = JSON.parse(data.users)
@@ -134,7 +146,7 @@
             })
     }
 
-    async function deleteRequest(requestId: string){
+    async function deleteRequest(requestId: string) {
         let API_URL = 'http://localhost:8080/api/delete/request'
 
         let fetchResponse = fetch(API_URL, {
@@ -146,13 +158,13 @@
 
         fetchResponse.then(response => response.json())
             .then(data => {
-                if (data.msg == "OK"){
+                if (data.msg == "OK") {
                     getRequestsForUser();
                 }
             })
     }
 
-    async function changeRequestAccept(requestId: string){
+    async function changeRequestAccept(requestId: string) {
         let API_URL = 'http://localhost:8080/api/change/request/status'
 
         let fetchResponse = fetch(API_URL, {
@@ -165,13 +177,19 @@
         fetchResponse.then(response => response.json())
             .then(data => {
                 console.log(data)
-                if (data.msg == "OK"){
+                if (data.msg == "OK") {
                     getRequestsForUser();
                 }
             })
     }
 
 </script>
+
+<head>
+    <title>${login}'s user page</title>
+    <meta property="og:title" content="${login}'s user page"/>
+    <meta property="og:description" content="Text and invite ${login} to eat together!"/>
+</head>
 
 <div class="form">
     <div id="info-block">
@@ -183,11 +201,11 @@
             <p>List of users</p>
             {#each listOfUsers as user}
                 <div class="user-info">
-                    <div>
-                        <div>{user.login}</div>
-                        <div>{user.preferences}</div>
-                    </div>
-                    <div style="float: right; padding-top: 20px">
+
+                    <div>{user.login}</div>
+                    <div>{user.preferences}</div>
+
+                    <div style="float: right">
                         <button on:click={() => openMessageWindow(user.login)}>Let's Go Eat</button>
                     </div>
                 </div>
@@ -198,12 +216,13 @@
             <div class="element">
                 <p>Your message for {receiverUser}</p>
                 <div class="message-form">
-                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value} /></p>
-                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value} /></p>
+                    <p><b>Suggest place:</b> <input type="text" bind:value={$place.value}/></p>
+                    <p><b>Cuisine:</b> <input type="text" bind:value={$cuisine.value}/></p>
                     <p><b>Comments:</b> <textarea bind:value={$invitation.value}></textarea></p>
                 </div>
-
-                <button on:click={()=>sendRequest()}>Send request</button>
+                {#if $myForm.valid}
+                    <button on:click={()=>sendRequest()}>Send request</button>
+                {/if}
             </div>
         {/if}
     </div>
@@ -212,18 +231,19 @@
         <div>
             {#each listOfRequests as request}
                 <div class="user-info">
-                    <div>
-                        <div>{request.fromUser}</div>
-                        <div>{request.message}</div>
-                        <div>{request.accept}</div>
-                    </div>
-                    <div style="float: right; padding-top: 20px;">
+
+                    <div>{request.fromUser}</div>
+                    <div>{request.message}</div>
+
+                    <div style="float: right;">
                         {#if !request.accept}
-                            <div><button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                                <button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button>
                         {:else}
-                            <div><button style="background-color: #85d2ac" on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button></div>
+                                <button style="background-color: #85d2ac"
+                                        on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat
+                                </button>
                         {/if}
-                        <div><button on:click={() => deleteRequest(request.id)}>Delete</button></div>
+                            <button on:click={() => deleteRequest(request.id)}>Delete</button>
                     </div>
                 </div>
             {/each}
@@ -253,12 +273,14 @@
         font-size: 20px;
         font-family: 'Ubuntu', sans-serif;
     }
+
     .user-info {
         padding: 10px;
         border-bottom: #9e4eca 4px solid;
         text-align: left;
-        display: inline-block;
-        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .message-form {
@@ -293,9 +315,11 @@
     #info-block {
         padding-bottom: 50px;
     }
+
     .meeting-form {
         display: flex;
     }
+
     .element {
         text-align: center;
         margin: 50px 100px;
