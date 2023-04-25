@@ -97,7 +97,7 @@
     async function sendRequest() {
         let API_URL = 'http://localhost:8080/api/send/request'
 
-        let response = await fetch(API_URL, {
+        let fetchResponse = fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
                 sender_user: login,
@@ -107,7 +107,16 @@
                 invitation: $invitation.value
             })
         });
-        await response.json()
+        visibility = false;
+        visibility = visibility;
+        fetchResponse.then(response => response.json())
+            .then(data => {
+                if (data.msg == "OK"){
+                    alert("You successfully send request to " + receiverUser)
+                } else {
+                    alert(data.msg)
+                }
+            })
     }
 
     async function getRequestsForUser() {
