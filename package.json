@@ -3,6 +3,8 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
+		"format": "prettier --write ./src/*/*.{js,svelte,html,ts}",
+		"lint": "eslint ./src/*/*.{js,ts,svelte}",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
