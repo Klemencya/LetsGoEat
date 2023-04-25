@@ -5,6 +5,7 @@
     import {field, form} from "svelte-forms";
     import {required} from "svelte-forms/validators";
     import {page} from '$app/stores';
+    import type {UserInfoResponseMessage} from "./UserInfoResponseMessage";
 
     let visibility = false;
     let receiverUser = '';
@@ -53,11 +54,9 @@
                     id: userInfo.ID,
                     preferences: userInfo.Preferences
                 }
-
+                getAllUsers();
+                getRequestsForUser();
             });
-
-        await getAllUsers();
-        await getRequestsForUser();
     })
 
     async function getAllUsers() {
@@ -67,7 +66,7 @@
         const fetchResponse = fetch(API_URL, {method: 'POST'});
         fetchResponse.then(response => response.json())
             .then(data => {
-                const usersInfo = JSON.parse(data.users)
+                const usersInfo : [UserInfoResponseMessage] = JSON.parse(data.users)
                 usersInfo.forEach(user => {
                     if (currentUser.login != user.Login) {
                         listOfFriends.push({
@@ -101,7 +100,7 @@
         let response = await fetch(API_URL, {
             method: 'POST',
             body: JSON.stringify({
-                sender_user: currentUser.login,
+                sender_user: login,
                 receiver_user: receiverUser,
                 place: $place.value,
                 cuisine: $cuisine.value,
@@ -193,11 +192,11 @@
             <p>List of users</p>
             {#each listOfUsers as user}
                 <div class="user-info">
-                    <div>
-                        <div>{user.login}</div>
-                        <div>{user.preferences}</div>
-                    </div>
-                    <div style="float: right; padding-top: 20px">
+
+                    <div>{user.login}</div>
+                    <div>{user.preferences}</div>
+
+                    <div style="float: right">
                         <button on:click={() => openMessageWindow(user.login)}>Let's Go Eat</button>
                     </div>
                 </div>
@@ -223,26 +222,19 @@
         <div>
             {#each listOfRequests as request}
                 <div class="user-info">
-                    <div>
-                        <div>{request.fromUser}</div>
-                        <div>{request.message}</div>
-                        <div>{request.accept}</div>
-                    </div>
-                    <div style="float: right; padding-top: 20px;">
+
+                    <div>{request.fromUser}</div>
+                    <div>{request.message}</div>
+
+                    <div style="float: right;">
                         {#if !request.accept}
-                            <div>
                                 <button on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat</button>
-                            </div>
                         {:else}
-                            <div>
                                 <button style="background-color: #85d2ac"
                                         on:click={()=>changeRequestAccept(request.id)}>Let's Go Eat
                                 </button>
-                            </div>
                         {/if}
-                        <div>
                             <button on:click={() => deleteRequest(request.id)}>Delete</button>
-                        </div>
                     </div>
                 </div>
             {/each}
@@ -277,8 +269,9 @@
         padding: 10px;
         border-bottom: #9e4eca 4px solid;
         text-align: left;
-        display: inline-block;
-        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .message-form {

@@ -30,7 +30,7 @@
                     nextLink = "account?user=" + currentUser
                 } else {
                     nextLink = "login"
-                    alert('Error: No such user!')
+                    alert(data.msg)
                 }
             });
     }

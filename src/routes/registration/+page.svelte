@@ -36,7 +36,7 @@
                     nextLink = "account?user=" + currentUser
                 } else {
                     nextLink = "registration"
-                    alert('Error: User with such login already exists!')
+                    alert(data.msg)
                 }
             });
     }
